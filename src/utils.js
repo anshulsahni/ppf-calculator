@@ -22,16 +22,19 @@ const map = function(array, iterator) {
   return Array.isArray ? array.map(iterator) : [];
 };
 
-// maps over the values of the object
-const mapValues = function(object, iterator) {
-  return map(Object.keys(object), function(key) {
-    return ({ [key]: iterator(object[key], key) });
-  });
-};
-
 // iterates over array and reduces them to single value
 const reduce = function(array, aggregator, initalValue) {
   return Array.isArray(array) ? array.reduce(aggregator, initalValue) : initalValue;
+};
+
+// maps over the values of the object
+const mapValues = function(object, iterator) {
+  return reduce(Object.keys(object), function(accumulator, key) {
+    return Object.assign(
+      accumulator,
+      {[key]: iterator(object[key], key)},
+    );
+  }, {});
 };
 
 // returns the last value of array
