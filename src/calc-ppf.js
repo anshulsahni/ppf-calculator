@@ -1,6 +1,9 @@
 
 const _ = require('./utils');
-const TOTAL_MONTHS = require('./constants').TOTAL_MONTHS;
+const months = require('./constants');
+
+const APR = months.APR;
+const TOTAL_MONTHS = months.TOTAL_MONTHS;
 
 
 // not considering the transactions before april 5
@@ -12,7 +15,13 @@ const getEffectiveTransactions = function(
 ) {
   return _.filter(transactions, function(transaction) {
     const date = transaction.date;
-    return _.fyDate(fYear, month - 1, 5) < date && date <= _.fyDate(fYear, month, 5);
+
+    // transaction should have happened after the 5 of prev month and before 5 of this month
+    // in case of april it should be between 1 and 5 of april
+    const isMonthApril = month === APR;
+    const fromDate = _.fyDate(fYear, isMonthApril ? month : month - 1, isMonthApril ? 1 : 5);
+    const toDate = _.fyDate(fYear, month, 5);
+    return fromDate <= date && date < toDate;
   });
 };
 
