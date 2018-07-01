@@ -19,7 +19,7 @@ const filter = function(array, iterator) {
 // functional implementation of Array.map
 // export const map = (array = [], iterator) => array.map(iterator);
 const map = function(array, iterator) {
-  return Array.isArray ? array.map(iterator) : [];
+  return Array.isArray(array) ? array.map(iterator) : [];
 };
 
 // iterates over array and reduces them to single value
