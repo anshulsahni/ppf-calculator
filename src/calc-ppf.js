@@ -3,6 +3,7 @@ const _ = require('./utils');
 const months = require('./constants');
 
 const APR = months.APR;
+const MAR = months.MAR;
 const TOTAL_MONTHS = months.TOTAL_MONTHS;
 
 
@@ -24,6 +25,13 @@ const getEffectiveTransactions = function(
     return fromDate <= date && date < toDate;
   });
 };
+
+const getIneffectiveTransactions = function(transactions, fYear) {
+  return _.filter(transactions, function(transaction) {
+    // transaction between 5 mar and 31 mar are not accounted for interest in that year
+    return (_.fyDate(fYear, 3, 5) <= transaction.date) && (transaction.date <= _.fyDate(fYear, 3, 31));
+  })
+}
 
 // gets the rate of interest of the given month from roi table
 const getEffectiveRoi = function(roiTable) {
@@ -62,11 +70,25 @@ const generatePPfTable = function(transactions, fYear, effectiveRoiOn, prevBal) 
     );
 
     const effectiveInterest = monthlyInterestOn(effectiveBal);
-    return {
+
+    var ppfTableRow = {
       month: month,
       effectiveBal: effectiveBal,
       effectiveInterest: effectiveInterest,
     };
+
+    if (month === MAR) {
+
+      var ineffectiveBal = _.reduce(
+        getIneffectiveTransactions(transactions, fYear),
+        addAmount,
+        0
+      );
+
+      ppfTableRow = Object.assign({}, ppfTableRow, { ineffectiveBal: ineffectiveBal });
+    }
+
+    return ppfTableRow;
   });
 }
 
@@ -99,7 +121,8 @@ const processTransactions = function(groupedTransactions, roiTable) {
     const interestEarned = calculateTotalInterestOf(ppfTable);
 
     //
-    const sumInvested = _.last(ppfTable).effectiveBal;
+    const lastPPFRow = _.last(ppfTable);
+    const sumInvested = lastPPFRow.effectiveBal + lastPPFRow.ineffectiveBal;
 
     //
     startBalance = sumInvested + interestEarned;
