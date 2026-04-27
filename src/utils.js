@@ -161,3 +161,6 @@ module.exports.getCalYear = getCalYear;
 module.exports.getFYear = getFYear;
 module.exports.calcInterest = calcInterest;
 module.exports.fyDate = fyDate;
+module.exports.MonToIdx = MonToIdx;
+module.exports.isBtwnAprDec = isBtwnAprDec;
+module.exports.calcPercent = calcPercent;
